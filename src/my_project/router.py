@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = APIRouter()
+= APIRouter()
 
 @router.get("/status")
 def get_status():
