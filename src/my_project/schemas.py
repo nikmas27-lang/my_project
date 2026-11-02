@@ -23,5 +23,6 @@ class Animal(BaseModel):
     breed: str
     country: str
 
+
 class AnimalResponse(BaseModel):
     id: int
