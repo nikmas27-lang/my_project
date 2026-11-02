@@ -18,7 +18,6 @@ class UserResponse(BaseModel):
 
 
 class Animal(BaseModel):
-    id: int
     name: str
     breed: str
     country: str
