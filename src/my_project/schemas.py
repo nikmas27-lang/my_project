@@ -25,3 +25,6 @@ class Animal(BaseModel):
 
 class AnimalResponse(BaseModel):
     id: int
+    name: str
+    breed: str
+    country: str
