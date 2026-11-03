@@ -1,6 +1,12 @@
 from fastapi import APIRouter, status, HTTPException
 
-from my_project.schemas import AnimalResponse, StatusResponse, User, UserResponse
+from my_project.schemas import (
+    Animal,
+    AnimalResponse,
+    StatusResponse,
+    User,
+    UserResponse,
+)
 
 router = APIRouter()
 users_database = dict[str, User]()
@@ -45,7 +51,25 @@ def get_all_users() -> list[UserResponse]:
 def get_animal(id: int) -> AnimalResponse:
     if id not in animals_database:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    animal = animals_database[id]
-    return AnimalResponse(
-        id=animal.id, name=animal.name, breed=animal.breed, country=animal.country
+    return animals_database[id]
+
+
+@router.post(
+    "/animals",
+    status_code=status.HTTP_201_CREATED,
+)
+def create_animal(animal: Animal) -> AnimalResponse:
+    new_id = len(animals_database) + 1
+    animal_response = AnimalResponse(
+        id=new_id,
+        name=animal.name,
+        breed=animal.breed,
+        country=animal.country,
     )
+    animals_database[new_id] = animal_response
+    return animal_response
+
+
+@router.get("/animals")
+def get_all_animals() -> list[AnimalResponse]:
+    return list(animals_database.values())
