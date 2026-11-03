@@ -6,6 +6,14 @@ class StatusResponse(BaseModel):
 
 
 class User(BaseModel):
+    id: int
+    login: str
+    name: str
+    email: str
+    password: str
+
+
+class UserCreate(BaseModel):
     login: str
     name: str
     email: str
