@@ -1,16 +1,24 @@
-from fastapi import APIRouter, status, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from my_project.schemas import (
     Animal,
     AnimalResponse,
     StatusResponse,
-    User,
+    UserCreate,
     UserResponse,
 )
+from my_project.services import UserService
 
 router = APIRouter()
-users_database = dict[str, User]()
-animals_database = dict[int, AnimalResponse]()
+
+
+def get_user_service(request: Request) -> UserService:
+    return request.app.state.user_service
+
+
+type UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 
 @router.get("/status")
@@ -22,29 +30,20 @@ def get_status() -> StatusResponse:
     "/signup",
     status_code=status.HTTP_201_CREATED,
 )
-def signup(user: User):
-    if user.login in users_database:
-        raise HTTPException(status.HTTP_409_CONFLICT)
-    users_database[user.login] = user
+async def signup(user: UserCreate, user_service: UserServiceDep):
+    await user_service.signup(user)
 
 
-@router.get("/users/{login}")
-def get_user(login: str) -> UserResponse:
-    if login not in users_database:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
-    user = users_database[login]
+@router.get("/users/{id}")
+async def get_user_by_id(id: int, user_service: UserServiceDep) -> UserResponse:
+    user = await user_service.get_by_id(id)
     return UserResponse(
         name=user.name,
         email=user.email,
     )
 
 
-@router.get("/users")
-def get_all_users() -> list[UserResponse]:
-    return [
-        UserResponse(name=user.name, email=user.email)
-        for user in users_database.values()
-    ]
+animals_database = dict[int, AnimalResponse]()
 
 
 @router.get("/animals/{id}")
